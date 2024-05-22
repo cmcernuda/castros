@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:ics.py - http://git.io/lLljaA
+BEGIN:VEVENT
+DESCRIPTION:Join us for an exclusive tasting of Espinosa Cigars. Special deals and swag available. Don't miss out!
+DTEND:20240530T200000Z
+LOCATION:Castro's Back Room Bedford\, 132 Bedford Center Rd\, Bedford\, NH 03110
+DTSTART:20240530T160000Z
+SUMMARY:Espinosa
+UID:ab886bfd-d893-41d3-891b-03e0d3a13adc@ab88.org
+END:VEVENT
+END:VCALENDAR
