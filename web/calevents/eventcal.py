@@ -1,5 +1,6 @@
 from ics import Calendar, Event
 from datetime import datetime, timedelta
+from pytz import timezone
 
 # Create a new calendar
 c = Calendar()
@@ -8,7 +9,9 @@ c = Calendar()
 e = Event()
 e.name = "Espinosa"
 #Update with each event BRAND NAME
-e.begin = datetime(2024, 5, 30, 16, 0)
+#Set timezones
+est = timezone('US/Eastern')
+e.begin = datetime(2024, 5, 30, 16, 0, tzinfo=est)
 #Date and time format: datetime(year, month, day, hour, minute)
 e.end = e.begin + timedelta(hours=4)
 e.location = "Castro's Back Room Bedford, 132 Bedford Center Rd, Bedford, NH 03110"
