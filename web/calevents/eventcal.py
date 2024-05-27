@@ -66,6 +66,8 @@ def create_event():
 
     #parse start time
     hour, minute = map(int, start_time.split(':'))
+    if am_pm.get() == 'PM':
+        hour += 12
     e.begin = e.begin.replace(hour=hour, minute=minute, second=0, tzinfo=est)
 
     # Parse length
@@ -75,11 +77,15 @@ def create_event():
     # Set location
     e.location = location_entry.get()
 
+    # Set event details
+    e.description = details_entry.get()
+
     #Add event to calendar
     c.events.add(e)
 
     #open a file dialog to choose where to save the ics file
-    filename = filedialog.asksaveasfilename(defaultextension=".ics")
+    default_filename = f"{e.name}_{e.begin.strftime('%m-%d-%Y')}.ics"
+    filename = filedialog.asksaveasfilename(defaultextension=".ics", initialfile=default_filename)
 
     #Save calendar to ICS file
     if filename:
@@ -99,7 +105,7 @@ window = Tk()
 window.title("Event Calendar")
 
 # Set window size
-window.geometry('500x375')  # Set width and height
+window.geometry('500x410')  # Set width and height
 
 # Create input fields
 Label(window, text="Event Name").pack()
@@ -113,6 +119,12 @@ date_entry.pack()
 Label(window, text="Start Time (HH:MM)").pack()
 time_entry = Entry(window)
 time_entry.pack()
+
+# Create AM/PM selection
+Label(window, text="AM/PM").pack()
+am_pm = StringVar()
+Radiobutton(window, text="AM", variable=am_pm, value="AM").pack()
+Radiobutton(window, text="PM", variable=am_pm, value="PM").pack()
 
 Label(window, text="Length (hours)").pack()
 length_entry = Entry(window)
