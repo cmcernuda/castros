@@ -27,22 +27,24 @@ def create_event():
         return
 
     # Validate start time
-    try:
-        hour, minute = map(int, start_time.split(':'))
-        if not (0 <= hour < 24 and 0 <= minute < 60):
-            raise ValueError
-    except ValueError:
-        messagebox.showerror('Error', 'Invalid start time')
-        return
+    if not all_day.get():
+        try:
+            hour, minute = map(int, start_time.split(':'))
+            if not (0 <= hour < 24 and 0 <= minute < 60):
+                raise ValueError
+        except ValueError:
+            messagebox.showerror('Error', 'Invalid start time')
+            return
 
     # Validate length
-    try:
-        hours, minutes = map(int, length.split(':'))
-        if hours < 0 or minutes < 0 or minutes >= 60:
-            raise ValueError
-    except ValueError:
-        messagebox.showerror('Error', 'Invalid length')
-        return
+    if not all_day.get():
+        try:
+            hours, minutes = map(int, length.split(':'))
+            if hours < 0 or minutes < 0 or minutes >= 60:
+                raise ValueError
+        except ValueError:
+            messagebox.showerror('Error', 'Invalid length')
+            return
 
     # Validate name
     if not name:
@@ -60,19 +62,23 @@ def create_event():
     #Set timezones
     est = timezone('US/Eastern')
 
-   # Parse date
+    #Parse date
     month, day, year = map(int, date_entry.get().split('-'))
     e.begin = datetime(year, month, day)
 
     #parse start time
-    hour, minute = map(int, start_time.split(':'))
-    if am_pm.get() == 'PM':
-        hour += 12
-    e.begin = e.begin.replace(hour=hour, minute=minute, second=0, tzinfo=est)
+    if all_day.get():
+        e.begin = e.begin.replace(hour=0, minute=0, second=0, tzinfo=est)
+        e.end = e.begin.replace(hour=23, minute=59, second=59, tzinfo=est)
+    else:
+        hour, minute = map(int, start_time.split(':'))
+        if am_pm.get() == 'PM':
+            hour += 12
+        e.begin = e.begin.replace(hour=hour, minute=minute, second=0, tzinfo=est)
 
-    # Parse length
-    hours, minutes = map(int, length.split(':'))
-    e.end = e.begin + timedelta(hours=hours, minutes=minutes)
+        # Parse length
+        hours, minutes = map(int, length.split(':'))
+        e.end = e.begin + timedelta(hours=hours, minutes=minutes)
 
     # Set location
     e.location = location_entry.get()
@@ -105,12 +111,17 @@ window = Tk()
 window.title("Event Calendar")
 
 # Set window size
-window.geometry('500x410')  # Set width and height
+window.geometry('500x450')  # Set width and height
 
 # Create input fields
 Label(window, text="Event Name").pack()
 name_entry = Entry(window)
 name_entry.pack()
+
+# Create all-day event checkbox
+Label(window, text="All-Day Event").pack()
+all_day = BooleanVar()
+Checkbutton(window, text="All Day", variable=all_day).pack()
 
 Label(window, text="Date (MM-DD-YYYY)").pack()
 date_entry = Entry(window)
