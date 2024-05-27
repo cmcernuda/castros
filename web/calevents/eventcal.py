@@ -1,11 +1,14 @@
 from tkinter import *
 from tkinter import messagebox
+from tkinter import ttk
 from ics import Calendar, Event
 from datetime import datetime, timedelta
 from pytz import timezone
 import os
-import webbrowser
+import subprocess
 from tkinter import filedialog
+#import sys
+#print(sys.executable)
 
 
 def create_event():
@@ -17,7 +20,7 @@ def create_event():
 
     # Validate date
     try:
-        year, month, day = map(int, date.split('-'))
+        month, day, year = map(int, date.split('-'))
         datetime(year, month, day)  # This will raise a ValueError if the date is not valid
     except ValueError:
         messagebox.showerror('Error', 'Invalid date')
@@ -34,8 +37,8 @@ def create_event():
 
     # Validate length
     try:
-        length = int(length)
-        if length <= 0:
+        hours, minutes = map(int, length.split(':'))
+        if hours < 0 or minutes < 0 or minutes >= 60:
             raise ValueError
     except ValueError:
         messagebox.showerror('Error', 'Invalid length')
@@ -49,20 +52,28 @@ def create_event():
     # Create a new calendar
     c = Calendar()
 
-    #Event Details
+    #Create Event
+    #Event name
     e = Event()
     e.name = name
 
     #Set timezones
     est = timezone('US/Eastern')
 
-    # Parse date and start time
-    year, month, day = map(int, date.split('-'))
-    hour, minute = map(int, start_time.split(':'))
-    e.begin = datetime(year, month, day, hour, minute, 0, tzinfo=est)
+   # Parse date
+    month, day, year = map(int, date_entry.get().split('-'))
+    e.begin = datetime(year, month, day)
 
-    # Set event length
-    e.end = e.begin + timedelta(hours=int(length))
+    #parse start time
+    hour, minute = map(int, start_time.split(':'))
+    e.begin = e.begin.replace(hour=hour, minute=minute, second=0, tzinfo=est)
+
+    # Parse length
+    hours, minutes = map(int, length.split(':'))
+    e.end = e.begin + timedelta(hours=hours, minutes=minutes)
+
+    # Set location
+    e.location = location_entry.get()
 
     #Add event to calendar
     c.events.add(e)
@@ -76,7 +87,7 @@ def create_event():
             f.writelines(c)
 
         #Open ICS file in default calendar app
-        webbrowser.open(filename)
+        subprocess.run(['open', filename])
 
         #Show success message
         messagebox.showinfo("Success", "Event added to calendar")
@@ -84,8 +95,18 @@ def create_event():
 # Create a new Tkinter window
 window = Tk()
 
+# Set window title
+window.title("Event Calendar")
+
+# Set window size
+window.geometry('500x375')  # Set width and height
+
 # Create input fields
-Label(window, text="Date (YYYY-MM-DD)").pack()
+Label(window, text="Event Name").pack()
+name_entry = Entry(window)
+name_entry.pack()
+
+Label(window, text="Date (MM-DD-YYYY)").pack()
 date_entry = Entry(window)
 date_entry.pack()
 
@@ -97,9 +118,14 @@ Label(window, text="Length (hours)").pack()
 length_entry = Entry(window)
 length_entry.pack()
 
-Label(window, text="Event Name").pack()
-name_entry = Entry(window)
-name_entry.pack()
+Label(window, text="Location").pack() #new location field
+location_entry = Entry(window)
+location_entry.pack()
+
+# Set Event Details
+Label(window, text="Event Details").pack() # new event details field
+details_entry = Entry(window)
+details_entry.pack()
 
 # Create a button to add the event
 Button(window, text="Add Event", command=create_event).pack()
